@@ -1,0 +1,4 @@
+# Cargo.toml
+[workspace]
+members = ["game_core", "tauri-app/src-tauri"]
+resolver = "3"
