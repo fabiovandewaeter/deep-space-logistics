@@ -1,13 +1,16 @@
 // game_core/src/lib.rs
-mod ecs;
+mod game;
+mod game_data;
+mod planet;
+mod scheduler;
 
 #[cfg(feature = "native")]
 mod native;
 #[cfg(feature = "wasm")]
 mod wasm;
 
-pub use ecs::*;
 #[cfg(feature = "native")]
 pub use native::*;
+pub use scheduler::*;
 #[cfg(feature = "wasm")]
 pub use wasm::*;

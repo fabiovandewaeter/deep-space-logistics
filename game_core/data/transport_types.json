@@ -1,0 +1,14 @@
+{
+    "types": [
+        {
+            "name": "truck",
+            "weight_capacity": 50.0,
+            "volume_capacity": 50.0,
+            "capabilities": [
+                {
+                    "name": "land"
+                }
+            ]
+        }
+    ]
+}

@@ -1,8 +1,20 @@
 <!-- tauri-app/src/App.svelte -->
 <script lang="ts">
+  import { onMount } from "svelte";
   import Counter from "./lib/Counter.svelte";
+  import { initGame } from "./wasm";
 
-  let menuOpen = false;
+  let menuOpen = true;
+
+  onMount(async () => {
+    try {
+      console.log("Loading game ...");
+      await initGame();
+      console.log("Game started !");
+    } catch (e) {
+      console.error("Error while loading game:", e);
+    }
+  });
 
   function toggleMenu() {
     menuOpen = !menuOpen;

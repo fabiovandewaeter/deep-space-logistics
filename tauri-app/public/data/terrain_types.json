@@ -1,0 +1,13 @@
+{
+    "types": [
+        {
+            "name": "land"
+        },
+        {
+            "name": "water"
+        },
+        {
+            "name": "vaccum"
+        }
+    ]
+}

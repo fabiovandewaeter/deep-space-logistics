@@ -1,35 +1,38 @@
 <!-- tauri-app/src/lib/Counter.svelte -->
-<script lang="ts">
-  import { onMount } from "svelte";
-  import { initWasm, stepOnce } from "./wasm";
-
-  let snapshot: Array<{ a: number; b: string }> = [];
-
-  onMount(async () => {
-    await initWasm();
-
-    // option A: requestAnimationFrame loop
-    function tick() {
-      const s = stepOnce(); // stepOnce retourne promise si async wrapper
-      Promise.resolve(s).then((v) => {
-        snapshot = v;
-        requestAnimationFrame(tick);
-      });
-    }
-    requestAnimationFrame(tick);
-
-    // option B: setInterval every N ms
-    // setInterval(async () => {
-    //   snapshot = await stepOnce();
-    // }, 16);
-  });
+<script>
+  import { gameData, gameSnapshot } from "../wasm";
 </script>
 
 <main>
-  <h2>Snapshot</h2>
+  <h2>Recipes</h2>
   <ul>
-    {#each snapshot as item, i}
-      <li>{i}: a={item.a} b={item.b}</li>
+    {#each $gameData?.recipes.recipes ?? [] as t}
+      <li>{t.name}</li>
     {/each}
   </ul>
+
+  <h2>Terrain types</h2>
+  <ul>
+    {#each $gameData?.terrain_types.types ?? [] as t}
+      <li>{t.name}</li>
+    {/each}
+  </ul>
+
+  <h2>Transport types</h2>
+  <ul>
+    {#each $gameData?.transport_types.types ?? [] as t}
+      <li>{t.name}</li>
+    {/each}
+  </ul>
+
+  <h2>Snapshot</h2>
+  {#if $gameSnapshot.length === 0}
+    <p>Loading ...</p>
+  {:else}
+    <ul>
+      {#each $gameSnapshot as item, i}
+        <li>ID {i}: a={item.a} | b={item.b}</li>
+      {/each}
+    </ul>
+  {/if}
 </main>

@@ -1,0 +1,23 @@
+{
+    "recipes": [
+        {
+            "name": "recipe_1",
+            "inputs": [
+                {
+                    "item_id": "item_1",
+                    "quantity": 10
+                },
+                {
+                    "item_id": "item_2",
+                    "quantity": 3
+                }
+            ],
+            "outputs": [
+                {
+                    "item_id": "item_3",
+                    "quantity": 1
+                }
+            ]
+        }
+    ]
+}

@@ -1,24 +1,36 @@
 // game_core/src/native.rs
-use crate::create_world;
+use std::fs;
 
-use hecs::World;
+use crate::{
+    game::Game,
+    game_data::{GameData, Recipes, TerrainTypes, TransportTypes},
+};
 
 pub fn run_native() {
-    let mut world = create_world();
+    let game_data = load_game_data();
+    let mut game = Game::new(game_data);
 
     loop {
-        use crate::step_world;
-
-        step_world(&mut world);
-        sys_print_test(&mut world);
-        // std::thread::sleep(std::time::Duration::from_millis(10));
+        game.step_world();
     }
 }
 
-fn sys_print_test(world: &mut World) {
-    for (a, b) in world.query::<(&i32, &u32)>().iter() {
-        if *a % 100_000 == 0 {
-            println!("{} {}", a, b);
-        }
+pub fn load_game_data() -> GameData {
+    let json_content = fs::read_to_string("./data/recipes.json").expect("Couldn't read JSON files");
+    let recipes: Recipes = serde_json::from_str(&json_content).expect("Invalid JSON");
+
+    let json_content =
+        fs::read_to_string("./data/terrain_types.json").expect("Couldn't read JSON files");
+    let terrain_types: TerrainTypes = serde_json::from_str(&json_content).expect("Invalid JSON");
+
+    let json_content =
+        fs::read_to_string("./data/transport_types.json").expect("Couldn't read JSON files");
+    let transport_types: TransportTypes =
+        serde_json::from_str(&json_content).expect("Invalid JSON");
+
+    GameData {
+        recipes,
+        terrain_types,
+        transport_types,
     }
 }
