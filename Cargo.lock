@@ -1327,7 +1327,19 @@ checksum = "f3a2d85ff28b1e1a1c183b6ca9ec1a6b97e7937fb989988a74d9db39760a07b8"
 dependencies = [
  "foldhash",
  "hashbrown 0.16.1",
+ "hecs-macros",
  "spin",
+]
+
+[[package]]
+name = "hecs-macros"
+version = "0.11.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f02c050fc7a118f62a5b5ba8399e460cec3db9c60d3ef9df12df06c490312580"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.114",
 ]
 
 [[package]]

@@ -3,7 +3,7 @@ use std::fs;
 
 use crate::{
     game::Game,
-    game_data::{GameData, Recipes, TerrainTypes, TransportTypes},
+    game_data::{GameData, GasTypes, Recipes, TerrainTypes, TransportTypes},
 };
 
 pub fn run_native() {
@@ -28,9 +28,14 @@ pub fn load_game_data() -> GameData {
     let transport_types: TransportTypes =
         serde_json::from_str(&json_content).expect("Invalid JSON");
 
+    let json_content =
+        fs::read_to_string("./data/gas_types.json").expect("Couldn't read JSON files");
+    let gas_types: GasTypes = serde_json::from_str(&json_content).expect("Invalid JSON");
+
     GameData {
         recipes,
         terrain_types,
         transport_types,
+        gas_types,
     }
 }

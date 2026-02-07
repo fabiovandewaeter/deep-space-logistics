@@ -1,7 +1,8 @@
 // game_core/src/lib.rs
 mod game;
 mod game_data;
-mod planet;
+mod item;
+mod map;
 mod scheduler;
 
 #[cfg(feature = "native")]

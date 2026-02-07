@@ -1,12 +1,15 @@
 // game_core/src/game_data.rs
 use serde::{Deserialize, Serialize};
 
+use crate::{item::recipe::Recipe, map::planet::GasType};
+
 /// read from json files
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct GameData {
     pub recipes: Recipes,
     pub terrain_types: TerrainTypes,
     pub transport_types: TransportTypes,
+    pub gas_types: GasTypes,
 }
 
 // terrain types
@@ -17,6 +20,13 @@ pub struct TerrainTypes {
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct TerrainType {
     pub name: String,
+}
+impl TerrainType {
+    pub fn new(name: &str) -> Self {
+        Self {
+            name: name.to_string(),
+        }
+    }
 }
 
 // transport type
@@ -32,19 +42,13 @@ pub struct TransportType {
     pub capabilities: Vec<TerrainType>,
 }
 
-// recipes
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct Recipes {
     pub recipes: Vec<Recipe>,
 }
+
+// gas type
 #[derive(Debug, Deserialize, Serialize, Clone)]
-pub struct Recipe {
-    pub name: String,
-    pub inputs: Vec<ItemStack>,
-    pub outputs: Vec<ItemStack>,
-}
-#[derive(Debug, Deserialize, Serialize, Clone)]
-pub struct ItemStack {
-    pub item_id: String,
-    pub quantity: u32,
+pub struct GasTypes {
+    pub types: Vec<GasType>,
 }

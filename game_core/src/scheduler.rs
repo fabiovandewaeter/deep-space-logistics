@@ -3,7 +3,7 @@ use hecs::*;
 
 use crate::{
     game_data::GameData,
-    planet::{Leader, Planet, Site},
+    map::planet::{Leader, Planet, Site},
 };
 
 pub fn scheduler(world: &mut World, game_data: &GameData) {
