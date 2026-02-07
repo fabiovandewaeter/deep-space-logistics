@@ -75,49 +75,50 @@ mod tests {
         let game_data = load_game_data();
         let mut game = Game::new(game_data);
 
-        let earth = game.world_mut().spawn(PlanetBundle {
+        let game_data = game.game_data();
+        let terrain_type_land = game.game_data().get_terrain_type("land");
+        let transport_type = game.game_data().get_transport_type("truck");
+
+        let world = game.world_mut();
+
+        let earth = world.spawn(PlanetBundle {
             planet: Planet {
                 name: "Earth".to_string(),
                 total_score: 0,
             },
             node: Node::default(),
         });
-        let terrain_type = game.game_data().get_terrain_type("land");
-        let paris = game.world_mut().spawn(SiteBundle {
+        let paris = world.spawn(SiteBundle {
             site: Site {
                 name: "Paris".to_string(),
                 base_production: 10,
-                terrain_type: terrain_type.clone(),
+                terrain_type: terrain_type_land.clone(),
                 planet: earth,
             },
             node: Node::default(),
         });
-        let terrain_type = game.game_data().get_terrain_type("land");
-        let marseille = game.world_mut().spawn(SiteBundle {
+        let marseille = world.spawn(SiteBundle {
             site: Site {
                 name: "Marseille".to_string(),
                 base_production: 10,
-                terrain_type,
+                terrain_type: terrain_type_land.clone(),
                 planet: earth,
             },
             node: Node::default(),
         });
-        let terrain_type = game.game_data().get_terrain_type("land");
-        connect_nodes(game.world_mut(), paris, marseille, 100.0, terrain_type);
+        connect_nodes(world, paris, marseille, 100.0, terrain_type_land);
 
-        let transport_type = game.game_data().get_transport_type("truck");
-        let transport = game.world_mut().spawn((Transport {
+        let transport = world.spawn((Transport {
             name: "T".to_string(),
             transport_type,
             current_node: paris,
         },));
 
         {
-            let transport_data = game.world().get::<&Transport>(transport).unwrap();
+            let transport_data = world.get::<&Transport>(transport).unwrap();
             assert_eq!(transport_data.current_node, paris);
         }
 
-        let world = game.world_mut();
         let paris_node = world.get::<&Node>(paris).unwrap();
         let neighbor_connection = paris_node.neighbor_connections[0].1;
         let connection = world.get::<&NodeConnection>(neighbor_connection).unwrap();
@@ -133,49 +134,52 @@ mod tests {
         let game_data = load_game_data();
         let mut game = Game::new(game_data);
 
-        let earth = game.world_mut().spawn(PlanetBundle {
+        let game_data = game.game_data();
+        let terrain_type_land = game_data.get_terrain_type("land");
+        let terrain_type_water = game_data.get_terrain_type("water");
+        let transport_type = game_data.get_transport_type("truck");
+        // drop(game_data);
+
+        let world = game.world_mut();
+
+        let earth = world.spawn(PlanetBundle {
             planet: Planet {
                 name: "Earth".to_string(),
                 total_score: 0,
             },
             node: Node::default(),
         });
-        let terrain_type = game.game_data().get_terrain_type("land");
-        let paris = game.world_mut().spawn(SiteBundle {
+        let paris = world.spawn(SiteBundle {
             site: Site {
                 name: "Paris".to_string(),
                 base_production: 10,
-                terrain_type: terrain_type.clone(),
+                terrain_type: terrain_type_land.clone(),
                 planet: earth,
             },
             node: Node::default(),
         });
-        let terrain_type = game.game_data().get_terrain_type("land");
-        let london = game.world_mut().spawn(SiteBundle {
+        let london = world.spawn(SiteBundle {
             site: Site {
                 name: "London".to_string(),
                 base_production: 10,
-                terrain_type,
+                terrain_type: terrain_type_land,
                 planet: earth,
             },
             node: Node::default(),
         });
-        let terrain_type = game.game_data().get_terrain_type("water");
-        connect_nodes(game.world_mut(), paris, london, 100.0, terrain_type);
+        connect_nodes(world, paris, london, 100.0, terrain_type_water);
 
-        let transport_type = game.game_data().get_transport_type("truck");
-        let transport = game.world_mut().spawn((Transport {
+        let transport = world.spawn((Transport {
             name: "T".to_string(),
             transport_type,
             current_node: paris,
         },));
 
         {
-            let transport_data = game.world().get::<&Transport>(transport).unwrap();
+            let transport_data = world.get::<&Transport>(transport).unwrap();
             assert_eq!(transport_data.current_node, paris);
         }
 
-        let world = game.world_mut();
         let paris_node = world.get::<&Node>(paris).unwrap();
         let neighbor_connection = paris_node.neighbor_connections[0].1;
         let connection = world.get::<&NodeConnection>(neighbor_connection).unwrap();
