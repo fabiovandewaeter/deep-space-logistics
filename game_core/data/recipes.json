@@ -1,6 +1,6 @@
 {
-    "recipes": [
-        {
+    "recipes": {
+        "recipe_1": {
             "name": "recipe_1",
             "inputs": [
                 {
@@ -19,5 +19,5 @@
                 }
             ]
         }
-    ]
+    }
 }

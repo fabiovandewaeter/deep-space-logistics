@@ -2,10 +2,7 @@
 use hecs::World;
 use serde::Serialize;
 
-use crate::{
-    game_data::{self, GameData, Recipes, TerrainTypes, TransportTypes},
-    scheduler,
-};
+use crate::{ game_data::GameData, scheduler};
 
 pub struct Game {
     world: World,

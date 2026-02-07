@@ -1,7 +1,7 @@
 // game_core/src/map/map.rs
 use hecs::{Entity, World};
 
-use crate::game_data::TerrainType;
+use crate::map::planet::TerrainType;
 
 /// marker for Site, Planet etc.
 #[derive(Debug, Default)]
@@ -53,11 +53,10 @@ pub fn connect_nodes(
 mod tests {
     use crate::{
         game::Game,
-        game_data::TerrainType,
         load_game_data,
         map::{
             Node, connect_nodes,
-            planet::{Atmosphere, GasType, Planet, PlanetBundle, Site, SiteBundle},
+            planet::{Atmosphere, GasType, Planet, PlanetBundle, Site, SiteBundle, TerrainType},
         },
     };
 

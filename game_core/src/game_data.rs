@@ -1,7 +1,15 @@
 // game_core/src/game_data.rs
+use std::collections::HashMap;
+
 use serde::{Deserialize, Serialize};
 
-use crate::{item::recipe::Recipe, map::planet::GasType};
+use crate::{
+    item::recipe::Recipe,
+    map::{
+        planet::{GasType, TerrainType},
+        transport::TransportType,
+    },
+};
 
 /// read from json files
 #[derive(Debug, Deserialize, Serialize, Clone)]
@@ -11,44 +19,44 @@ pub struct GameData {
     pub transport_types: TransportTypes,
     pub gas_types: GasTypes,
 }
+impl GameData {
+    pub fn get_recipe(&self, name: &str) -> Recipe {
+        self.recipes.recipes.get(name).unwrap().clone()
+    }
+
+    pub fn get_terrain_type(&self, name: &str) -> TerrainType {
+        self.terrain_types.types.get(name).unwrap().clone()
+    }
+
+    pub fn get_transport_type(&self, name: &str) -> TransportType {
+        self.transport_types.types.get(name).unwrap().clone()
+    }
+
+    pub fn get_gas_type(&self, name: &str) -> GasType {
+        self.gas_types.types.get(name).unwrap().clone()
+    }
+}
+
+// recipes
+#[derive(Debug, Deserialize, Serialize, Clone)]
+pub struct Recipes {
+    pub recipes: HashMap<String, Recipe>,
+}
 
 // terrain types
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct TerrainTypes {
-    pub types: Vec<TerrainType>,
-}
-#[derive(Debug, Deserialize, Serialize, Clone)]
-pub struct TerrainType {
-    pub name: String,
-}
-impl TerrainType {
-    pub fn new(name: &str) -> Self {
-        Self {
-            name: name.to_string(),
-        }
-    }
+    pub types: HashMap<String, TerrainType>,
 }
 
 // transport type
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct TransportTypes {
-    pub types: Vec<TransportType>,
-}
-#[derive(Debug, Deserialize, Serialize, Clone)]
-pub struct TransportType {
-    pub name: String,
-    pub weight_capacity: f64,
-    pub volume_capacity: f64,
-    pub capabilities: Vec<TerrainType>,
-}
-
-#[derive(Debug, Deserialize, Serialize, Clone)]
-pub struct Recipes {
-    pub recipes: Vec<Recipe>,
+    pub types: HashMap<String, TransportType>,
 }
 
 // gas type
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct GasTypes {
-    pub types: Vec<GasType>,
+    pub types: HashMap<String, GasType>,
 }

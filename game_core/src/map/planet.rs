@@ -2,7 +2,7 @@
 use hecs::{Bundle, Entity};
 use serde::{Deserialize, Serialize};
 
-use crate::{game_data::TerrainType, map::Node};
+use crate::map::Node;
 
 #[derive(Debug)]
 pub struct Atmosphere {
@@ -32,6 +32,18 @@ pub struct Planet {
 pub struct PlanetBundle {
     pub planet: Planet,
     pub node: Node,
+}
+
+#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
+pub struct TerrainType {
+    pub name: String,
+}
+impl TerrainType {
+    pub fn new(name: &str) -> Self {
+        Self {
+            name: name.to_string(),
+        }
+    }
 }
 
 #[derive(Debug)]

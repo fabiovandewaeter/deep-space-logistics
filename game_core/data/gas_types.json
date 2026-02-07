@@ -1,10 +1,10 @@
 {
-    "types": [
-        {
+    "types": {
+        "oxygen": {
             "name": "oxygen"
         },
-        {
+        "CO2": {
             "name": "CO2"
         }
-    ]
+    }
 }
