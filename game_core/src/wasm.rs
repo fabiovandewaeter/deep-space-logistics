@@ -28,6 +28,6 @@ impl WasmGameHandle {
     }
 
     pub fn game_data(&self) -> JsValue {
-        to_value(self.game.game_data()).expect("Failed to serialize game data")
+        to_value(&self.game.game_data()).expect("Failed to serialize game data")
     }
 }
