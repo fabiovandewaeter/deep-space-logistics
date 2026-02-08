@@ -1,8 +1,8 @@
 // game_core/src/map/planet.rs
-use hecs::{Bundle, Entity};
+use hecs::Bundle;
 use serde::{Deserialize, Serialize};
 
-use crate::map::Node;
+use crate::map::node::Node;
 
 #[derive(Debug)]
 pub struct Atmosphere {
@@ -34,31 +34,6 @@ pub struct PlanetBundle {
     pub node: Node,
 }
 
-#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
-pub struct TerrainType {
-    pub name: String,
-}
-impl TerrainType {
-    pub fn new(name: &str) -> Self {
-        Self {
-            name: name.to_string(),
-        }
-    }
-}
-
-#[derive(Debug)]
-pub struct Site {
-    pub name: String,
-    pub base_production: u32,
-    pub terrain_type: TerrainType,
-    pub planet: Entity,
-}
-#[derive(Bundle)]
-pub struct SiteBundle {
-    pub site: Site,
-    pub node: Node,
-}
-
 #[derive(Debug)]
 pub struct Leader {
     pub name: String,
@@ -68,7 +43,14 @@ pub struct Leader {
 #[cfg(feature = "native")]
 #[cfg(test)]
 mod tests {
-    use crate::{game::Game, load_game_data};
+    use crate::{
+        game::Game,
+        load_game_data,
+        map::{
+            region::{Region, RegionBundle},
+            site::{Site, TerrainType},
+        },
+    };
 
     use super::*;
 
@@ -81,10 +63,19 @@ mod tests {
             name: "A".to_string(),
             total_score: 0,
         },));
+        let north = game.world_mut().spawn((RegionBundle {
+            region: Region {
+                name: "North".to_string(),
+                planet: pa,
+            },
+            node: Node::default(),
+        },));
+
         game.world_mut().spawn((Site {
             name: "LA".to_string(),
             base_production: 10,
             terrain_type: TerrainType::new("land"),
+            region: north,
             planet: pa,
         },));
 
@@ -103,6 +94,7 @@ mod tests {
                 name: "LB".to_string(),
                 base_production: 10,
                 terrain_type: TerrainType::new("land"),
+                region: north,
                 planet: pb,
             },
             Leader {

@@ -5,13 +5,16 @@ use crate::{
     game_data::GameData,
     map::{
         machine::sys_process_machine,
-        planet::{Leader, Planet, Site},
+        planet::{Leader, Planet},
+        site::Site,
+        transport::sys_move_transport,
     },
 };
 
 pub fn scheduler(world: &mut World, game_data: &GameData) {
     sys_add_produciton(world);
     sys_process_machine(world);
+    sys_move_transport(world);
 }
 
 fn sys_add_produciton(world: &mut World) {

@@ -1,6 +1,6 @@
 pub mod machine;
-mod map;
+pub mod node;
 pub mod planet;
+pub mod region;
+pub mod site;
 pub mod transport;
-
-pub use map::*;

@@ -14,14 +14,15 @@ export async function initGame() {
 
     await init(wasmUrl);
 
-    const [recipes, terrain_types, transport_types, gas_types] = await Promise.all([
+    const [recipes, terrain_types, transport_types, gas_types, item_types] = await Promise.all([
         fetch("./data/recipes.json").then(r => r.json()),
         fetch("./data/terrain_types.json").then(r => r.json()),
         fetch("./data/transport_types.json").then(r => r.json()),
         fetch("./data/gas_types.json").then(r => r.json()),
+        fetch("./data/item_types.json").then(r => r.json()),
     ]);
 
-    const combined = { recipes, terrain_types, transport_types, gas_types };
+    const combined = { recipes, terrain_types, transport_types, gas_types, item_types };
 
     game = new WasmGameHandle(combined);
     gameData.set(game.game_data());

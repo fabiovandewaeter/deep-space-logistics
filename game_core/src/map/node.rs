@@ -1,7 +1,7 @@
 // game_core/src/map/map.rs
 use hecs::{Entity, World};
 
-use crate::map::planet::TerrainType;
+use crate::map::site::TerrainType;
 
 /// marker for Site, Planet etc.
 #[derive(Debug, Default)]
@@ -15,7 +15,7 @@ pub struct Node {
 pub struct NodeConnection {
     pub node_a: Entity,
     pub node_b: Entity,
-    pub distance: f32,
+    pub distance: u32,
     pub terrain_type: TerrainType,
 }
 
@@ -24,7 +24,7 @@ pub fn connect_nodes(
     world: &mut World,
     node_a: Entity,
     node_b: Entity,
-    distance: f32,
+    distance: u32,
     terrain_type: TerrainType,
 ) {
     let node_connection = world.spawn((NodeConnection {
@@ -55,8 +55,10 @@ mod tests {
         game::Game,
         load_game_data,
         map::{
-            Node, connect_nodes,
-            planet::{Atmosphere, GasType, Planet, PlanetBundle, Site, SiteBundle, TerrainType},
+            node::{Node, connect_nodes},
+            planet::{Atmosphere, GasType, Planet, PlanetBundle},
+            region::{Region, RegionBundle},
+            site::{Site, SiteBundle, TerrainType},
         },
     };
 
@@ -78,12 +80,20 @@ mod tests {
                 composition: vec![(GasType::new("oxygen"), 100.0)],
             },
         ));
+        let north = game.world_mut().spawn((RegionBundle {
+            region: Region {
+                name: "North".to_string(),
+                planet: earth,
+            },
+            node: Node::default(),
+        },));
 
         let paris = game.world_mut().spawn(SiteBundle {
             site: Site {
                 name: "Paris".to_string(),
                 base_production: 10,
                 terrain_type: TerrainType::new("land"),
+                region: north,
                 planet: earth,
             },
             node: Node::default(),
@@ -94,6 +104,7 @@ mod tests {
                 name: "London".to_string(),
                 base_production: 10,
                 terrain_type: TerrainType::new("land"),
+                region: north,
                 planet: earth,
             },
             node: Node::default(),
@@ -112,7 +123,7 @@ mod tests {
             game.world_mut(),
             paris,
             london,
-            100.0,
+            100,
             TerrainType::new("water"),
         );
 
