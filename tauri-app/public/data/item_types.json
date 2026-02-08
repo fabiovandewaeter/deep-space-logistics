@@ -1,0 +1,13 @@
+{
+    "types": {
+        "iron_ore": {
+            "name": "iron_ore"
+        },
+        "iron_plate": {
+            "name": "iron_plate"
+        },
+        "iron_gear": {
+            "name": "iron_gear"
+        }
+    }
+}

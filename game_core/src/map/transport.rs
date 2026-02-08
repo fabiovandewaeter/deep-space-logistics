@@ -76,8 +76,8 @@ mod tests {
         let mut game = Game::new(game_data);
 
         let game_data = game.game_data();
-        let terrain_type_land = game.game_data().get_terrain_type("land");
-        let transport_type = game.game_data().get_transport_type("truck");
+        let terrain_type_land = game_data.get_terrain_type("land");
+        let transport_type = game_data.get_transport_type("truck");
 
         let world = game.world_mut();
 
@@ -138,7 +138,6 @@ mod tests {
         let terrain_type_land = game_data.get_terrain_type("land");
         let terrain_type_water = game_data.get_terrain_type("water");
         let transport_type = game_data.get_transport_type("truck");
-        // drop(game_data);
 
         let world = game.world_mut();
 

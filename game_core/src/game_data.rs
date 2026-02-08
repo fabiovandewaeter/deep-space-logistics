@@ -4,7 +4,7 @@ use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    item::recipe::Recipe,
+    item::{ItemType, recipe::Recipe},
     map::{
         planet::{GasType, TerrainType},
         transport::TransportType,
@@ -18,6 +18,7 @@ pub struct GameData {
     pub terrain_types: TerrainTypes,
     pub transport_types: TransportTypes,
     pub gas_types: GasTypes,
+    pub item_types: ItemTypes,
 }
 impl GameData {
     pub fn get_recipe(&self, name: &str) -> Recipe {
@@ -34,6 +35,10 @@ impl GameData {
 
     pub fn get_gas_type(&self, name: &str) -> GasType {
         self.gas_types.types.get(name).unwrap().clone()
+    }
+
+    pub fn get_item_type(&self, name: &str) -> ItemType {
+        self.item_types.types.get(name).unwrap().clone()
     }
 }
 
@@ -59,4 +64,10 @@ pub struct TransportTypes {
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct GasTypes {
     pub types: HashMap<String, GasType>,
+}
+
+// item type
+#[derive(Debug, Deserialize, Serialize, Clone)]
+pub struct ItemTypes {
+    pub types: HashMap<String, ItemType>,
 }

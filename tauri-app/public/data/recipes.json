@@ -1,23 +1,44 @@
 {
-    "recipes": [
-        {
-            "name": "recipe_1",
+    "recipes": {
+        "iron_plate": {
+            "name": "iron_plate",
             "inputs": [
                 {
-                    "item_id": "item_1",
-                    "quantity": 10
-                },
-                {
-                    "item_id": "item_2",
-                    "quantity": 3
+                    "item_type": {
+                        "name": "iron_ore"
+                    },
+                    "quantity": 1
                 }
             ],
             "outputs": [
                 {
-                    "item_id": "item_3",
+                    "item_type": {
+                        "name": "iron_plate"
+                    },
                     "quantity": 1
                 }
-            ]
+            ],
+            "duration": 5
+        },
+        "iron_gear": {
+            "name": "iron_gear",
+            "inputs": [
+                {
+                    "item_type": {
+                        "name": "iron_plate"
+                    },
+                    "quantity": 2
+                }
+            ],
+            "outputs": [
+                {
+                    "item_type": {
+                        "name": "iron_gear"
+                    },
+                    "quantity": 1
+                }
+            ],
+            "duration": 5
         }
-    ]
+    }
 }

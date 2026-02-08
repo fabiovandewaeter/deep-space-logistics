@@ -3,22 +3,15 @@ use hecs::*;
 
 use crate::{
     game_data::GameData,
-    map::planet::{Leader, Planet, Site},
+    map::{
+        machine::sys_process_machine,
+        planet::{Leader, Planet, Site},
+    },
 };
 
 pub fn scheduler(world: &mut World, game_data: &GameData) {
-    sys_increment(world);
     sys_add_produciton(world);
-}
-
-fn sys_increment(world: &mut World) {
-    for (a, b) in world.query_mut::<(&mut i32, &mut u32)>() {
-        *a += 1;
-        if (u32::MAX - *a as u32) < *b {
-            *b = 0;
-        }
-        *b += *a as u32;
-    }
+    sys_process_machine(world);
 }
 
 fn sys_add_produciton(world: &mut World) {
@@ -32,25 +25,5 @@ fn sys_add_produciton(world: &mut World) {
             }
             None => (site.base_production) as u64,
         };
-    }
-}
-
-#[cfg(feature = "native")]
-#[cfg(test)]
-mod tests {
-    use crate::{game::Game, load_game_data};
-
-    use super::*;
-
-    #[test]
-    fn test_setp_world_increments_without_snapshot() {
-        let game_data = load_game_data();
-        let mut game = Game::new(game_data);
-
-        game.step_world();
-
-        for (a, _) in game.world().query::<(&i32, &u32)>().iter() {
-            assert_eq!(*a, 1);
-        }
     }
 }

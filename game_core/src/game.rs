@@ -1,8 +1,8 @@
 // game_core/game.rs
-use hecs::World;
+use hecs::{ComponentError, ComponentRef, Entity, World};
 use serde::Serialize;
 
-use crate::{ game_data::GameData, scheduler};
+use crate::{game_data::GameData, scheduler};
 
 pub struct Game {
     world: World,
@@ -45,6 +45,13 @@ impl Game {
 
     pub fn game_data(&self) -> &GameData {
         &self.game_data
+    }
+
+    pub fn get<'a, T: ComponentRef<'a>>(
+        &'a self,
+        entity: Entity,
+    ) -> Result<T::Ref, ComponentError> {
+        self.world.get::<T>(entity)
     }
 
     /// TODO: create snapshot functions for smaller part of the world

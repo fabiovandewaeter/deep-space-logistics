@@ -6,22 +6,22 @@
 <main>
   <h2>Recipes</h2>
   <ul>
-    {#each $gameData?.recipes.recipes ?? [] as t}
-      <li>{t.name}</li>
+    {#each $gameData?.recipes.recipes.keys() ?? [] as t}
+      <li>{t}</li>
     {/each}
   </ul>
 
   <h2>Terrain types</h2>
   <ul>
-    {#each $gameData?.terrain_types.types ?? [] as t}
-      <li>{t.name}</li>
+    {#each $gameData?.terrain_types.types.keys() ?? [] as t}
+      <li>{t}</li>
     {/each}
   </ul>
 
   <h2>Transport types</h2>
   <ul>
-    {#each $gameData?.transport_types.types ?? [] as t}
-      <li>{t.name}</li>
+    {#each $gameData?.transport_types.types.keys() ?? [] as t}
+      <li>{t}</li>
     {/each}
   </ul>
 

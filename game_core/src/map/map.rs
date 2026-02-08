@@ -6,7 +6,7 @@ use crate::map::planet::TerrainType;
 /// marker for Site, Planet etc.
 #[derive(Debug, Default)]
 pub struct Node {
-    /// vec of (destination Node, NodeConnection)
+    /// Vec(destination Node, NodeConnection)
     pub neighbor_connections: Vec<(Entity, Entity)>,
 }
 

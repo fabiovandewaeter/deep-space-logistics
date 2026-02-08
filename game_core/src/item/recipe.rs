@@ -8,4 +8,6 @@ pub struct Recipe {
     pub name: String,
     pub inputs: Vec<ItemStack>,
     pub outputs: Vec<ItemStack>,
+    /// number of ticks
+    pub duration: u32,
 }
