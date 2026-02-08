@@ -15,5 +15,8 @@ npm run build
 # 3) zip ./tauri-app/dist to ./game-web.zip
 cd dist
 zip -r ../../game-web.zip ./*
+rm -rf ../../docs/
+mkdir ../../docs/
+cp -r ./* ../../docs/
 
 echo "Created ./game-web.zip"
