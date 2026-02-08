@@ -2,7 +2,10 @@
 use hecs::{Bundle, Entity, World};
 use serde::{Deserialize, Serialize};
 
-use crate::map::node::Node;
+use crate::map::{
+    node::Node,
+    stellar_system::{self, StellarSystem},
+};
 
 #[derive(Debug)]
 pub struct Atmosphere {
@@ -26,6 +29,7 @@ impl GasType {
 pub struct Planet {
     pub name: String,
 
+    pub stellar_system: Entity,
     pub regions: Vec<Entity>,
 }
 /// can add an Atmosphere
@@ -35,18 +39,19 @@ pub struct PlanetBundle {
     pub node: Node,
 }
 
-pub fn spawn_default_planet(world: &mut World, name: &str) -> Entity {
+pub fn spawn_default_planet(world: &mut World, stellar_system_ent: Entity, name: &str) -> Entity {
     let planet_ent = world.spawn(PlanetBundle {
         planet: Planet {
             name: name.to_string(),
+            stellar_system: stellar_system_ent,
             regions: Vec::new(),
         },
         node: Node::default(),
     });
 
-    // if let Ok(mut galaxy) = world.get::<&mut Galaxy>(galaxy) {
-    //     galaxy.celestial_bodies.push(planet_ent.clone());
-    // }
+    if let Ok(mut stellar_system) = world.get::<&mut StellarSystem>(stellar_system_ent) {
+        stellar_system.celestial_objects.push(planet_ent.clone());
+    }
 
     planet_ent
 }

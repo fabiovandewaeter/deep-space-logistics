@@ -127,10 +127,12 @@ mod tests {
         game::Game,
         load_game_data,
         map::{
+            galaxy::spawn_default_galaxy,
             node::{Node, NodeConnection, connect_nodes},
             planet::{Atmosphere, GasType, spawn_default_planet},
             region::spawn_default_region,
             site::spawn_default_site,
+            stellar_system::spawn_default_stellar_system,
             transport::{Position, Transport, TraverseError},
         },
     };
@@ -143,7 +145,9 @@ mod tests {
         let game_data = game.game_data();
         let world = game.world_mut();
 
-        let earth_ent = spawn_default_planet(world, "Earth");
+        let galaxy_ent = spawn_default_galaxy(world, "Galaxy");
+        let stellar_system_ent = spawn_default_stellar_system(world, galaxy_ent, "Stellar system");
+        let earth_ent = spawn_default_planet(world, stellar_system_ent, "Earth");
         world
             .insert(
                 earth_ent,
@@ -222,7 +226,9 @@ mod tests {
         let game_data = game.game_data();
         let world = game.world_mut();
 
-        let earth_ent = spawn_default_planet(world, "Earth");
+        let galaxy_ent = spawn_default_galaxy(world, "Galaxy");
+        let stellar_system_ent = spawn_default_stellar_system(world, galaxy_ent, "Stellar system");
+        let earth_ent = spawn_default_planet(world, stellar_system_ent, "Earth");
         world
             .insert(
                 earth_ent,
