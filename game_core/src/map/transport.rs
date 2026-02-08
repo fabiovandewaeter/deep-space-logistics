@@ -2,7 +2,7 @@
 use hecs::{Entity, World};
 use serde::{Deserialize, Serialize};
 
-use crate::map::{node::NodeConnection, site::TerrainType};
+use crate::map::{node::NodeConnection, terrain::TerrainType};
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct TransportType {
@@ -123,16 +123,14 @@ pub fn sys_move_transport(world: &mut World) {
 #[cfg(feature = "native")]
 #[cfg(test)]
 mod tests {
-    use hecs::World;
-
     use crate::{
         game::Game,
         load_game_data,
         map::{
             node::{Node, NodeConnection, connect_nodes},
-            planet::{Planet, PlanetBundle},
-            region::{Region, RegionBundle},
-            site::{Site, SiteBundle},
+            planet::{Atmosphere, GasType, spawn_default_planet},
+            region::spawn_default_region,
+            site::spawn_default_site,
             transport::{Position, Transport, TraverseError},
         },
     };
@@ -143,90 +141,77 @@ mod tests {
         let mut game = Game::new(game_data);
 
         let game_data = game.game_data();
-        let terrain_type_land = game_data.get_terrain_type("land");
-        let transport_type = game_data.get_transport_type("truck");
+        let world = game.world_mut();
 
-        let (transport_ent, neighbor_connection, number_steps) = {
-            let world = game.world_mut();
+        let earth_ent = spawn_default_planet(world, "Earth");
+        world
+            .insert(
+                earth_ent,
+                (Atmosphere {
+                    pressure: 0.,
+                    composition: vec![(GasType::new("oxygen"), 100.0)],
+                },),
+            )
+            .unwrap();
+        let north_ent = spawn_default_region(world, earth_ent, "North");
+        let paris_ent = spawn_default_site(
+            world,
+            north_ent,
+            "Paris",
+            game_data.get_terrain_type("land"),
+        );
+        let marseille_ent = spawn_default_site(
+            world,
+            north_ent,
+            "Marseille",
+            game_data.get_terrain_type("land"),
+        );
+        connect_nodes(
+            game.world_mut(),
+            paris_ent,
+            marseille_ent,
+            100,
+            game_data.get_terrain_type("land"),
+        );
 
-            let earth = world.spawn(PlanetBundle {
-                planet: Planet {
-                    name: "Earth".to_string(),
-                    total_score: 0,
-                },
-                node: Node::default(),
-            });
-            let north = world.spawn((RegionBundle {
-                region: Region {
-                    name: "North".to_string(),
-                    planet: earth,
-                },
-                node: Node::default(),
-            },));
-            let paris = world.spawn(SiteBundle {
-                site: Site {
-                    name: "Paris".to_string(),
-                    base_production: 10,
-                    terrain_type: terrain_type_land.clone(),
-                    region: north,
-                    planet: earth,
-                },
-                node: Node::default(),
-            });
-            let marseille = world.spawn(SiteBundle {
-                site: Site {
-                    name: "Marseille".to_string(),
-                    base_production: 10,
-                    terrain_type: terrain_type_land.clone(),
-                    region: north,
-                    planet: earth,
-                },
-                node: Node::default(),
-            });
-            connect_nodes(world, paris, marseille, 100, terrain_type_land);
+        let transport = game.spawn((Transport {
+            name: "T".to_string(),
+            transport_type: game_data.get_transport_type("truck"),
+            position: Position::AtNode(paris_ent),
+        },));
 
-            let transport = world.spawn((Transport {
-                name: "T".to_string(),
-                transport_type,
-                position: Position::AtNode(paris),
-            },));
+        {
+            let transport_data = game.get::<&Transport>(transport).unwrap();
+            assert_eq!(transport_data.position, Position::AtNode(paris_ent));
+        }
 
-            {
-                {
-                    let transport_data = world.get::<&Transport>(transport).unwrap();
-                    assert_eq!(transport_data.position, Position::AtNode(paris));
-                }
+        let paris_node = game.get::<&Node>(paris_ent).unwrap();
+        let neighbor_connection = paris_node.neighbor_connections[0].1;
+        drop(paris_node);
+        let mut transport_data = game.get::<&mut Transport>(transport).unwrap();
+        let result = transport_data.start_traverse(game.world(), neighbor_connection);
 
-                let paris_node = world.get::<&Node>(paris).unwrap();
-                let neighbor_connection = paris_node.neighbor_connections[0].1;
-                let mut transport_data = world.get::<&mut Transport>(transport).unwrap();
-                let result = transport_data.start_traverse(world, neighbor_connection);
+        // traverse started
+        assert!(result.is_ok());
+        assert!(matches!(
+            transport_data.position,
+            Position::OnConnection { .. }
+        ));
 
-                // traverse started
-                assert!(result.is_ok());
-                assert!(matches!(
-                    transport_data.position,
-                    Position::OnConnection { .. }
-                ));
-
-                let connection = world.get::<&NodeConnection>(neighbor_connection).unwrap();
-                let distance = connection.distance;
-                let transport_speed = transport_data.get_speed();
-                let number_steps = distance / transport_speed;
-
-                (transport, neighbor_connection, number_steps)
-            }
-        };
+        let connection = game.get::<&NodeConnection>(neighbor_connection).unwrap();
+        let distance = connection.distance;
+        drop(connection);
+        let transport_speed = transport_data.get_speed();
+        let number_steps = distance / transport_speed;
+        drop(transport_data);
 
         for _ in 0..number_steps {
             game.step_world();
         }
 
-        {
-            let world = game.world_mut();
-            let transport_data = world.get::<&Transport>(transport_ent).unwrap();
-            assert!(matches!(transport_data.position, Position::AtNode(..)));
-        }
+        let world = game.world_mut();
+        let transport_data = world.get::<&Transport>(transport).unwrap();
+        assert!(matches!(transport_data.position, Position::AtNode(..)));
     }
 
     #[test]
@@ -235,65 +220,56 @@ mod tests {
         let mut game = Game::new(game_data);
 
         let game_data = game.game_data();
-        let terrain_type_land = game_data.get_terrain_type("land");
-        let terrain_type_water = game_data.get_terrain_type("water");
-        let transport_type = game_data.get_transport_type("truck");
-
         let world = game.world_mut();
 
-        let earth = world.spawn(PlanetBundle {
-            planet: Planet {
-                name: "Earth".to_string(),
-                total_score: 0,
-            },
-            node: Node::default(),
-        });
-        let north = world.spawn((RegionBundle {
-            region: Region {
-                name: "North".to_string(),
-                planet: earth,
-            },
-            node: Node::default(),
-        },));
-        let paris = world.spawn(SiteBundle {
-            site: Site {
-                name: "Paris".to_string(),
-                base_production: 10,
-                terrain_type: terrain_type_land.clone(),
-                region: north,
-                planet: earth,
-            },
-            node: Node::default(),
-        });
-        let london = world.spawn(SiteBundle {
-            site: Site {
-                name: "London".to_string(),
-                base_production: 10,
-                terrain_type: terrain_type_land,
-                region: north,
-                planet: earth,
-            },
-            node: Node::default(),
-        });
-        connect_nodes(world, paris, london, 100, terrain_type_water);
+        let earth_ent = spawn_default_planet(world, "Earth");
+        world
+            .insert(
+                earth_ent,
+                (Atmosphere {
+                    pressure: 0.,
+                    composition: vec![(GasType::new("oxygen"), 100.0)],
+                },),
+            )
+            .unwrap();
+        let north_ent = spawn_default_region(world, earth_ent, "North");
+        let paris_ent = spawn_default_site(
+            world,
+            north_ent,
+            "Paris",
+            game_data.get_terrain_type("land"),
+        );
+        let london_ent = spawn_default_site(
+            world,
+            north_ent,
+            "London",
+            game_data.get_terrain_type("land"),
+        );
+        connect_nodes(
+            game.world_mut(),
+            paris_ent,
+            london_ent,
+            100,
+            game_data.get_terrain_type("water"),
+        );
 
-        let transport = world.spawn((Transport {
+        let transport = game.spawn((Transport {
             name: "T".to_string(),
-            transport_type,
-            position: Position::AtNode(paris),
+            transport_type: game_data.get_transport_type("truck"),
+            position: Position::AtNode(paris_ent),
         },));
 
         {
-            let transport_data = world.get::<&Transport>(transport).unwrap();
-            assert_eq!(transport_data.position, Position::AtNode(paris));
+            let transport_data = game.get::<&Transport>(transport).unwrap();
+            assert_eq!(transport_data.position, Position::AtNode(paris_ent));
         }
 
-        let paris_node = world.get::<&Node>(paris).unwrap();
+        let paris_node = game.get::<&Node>(paris_ent).unwrap();
         let neighbor_connection = paris_node.neighbor_connections[0].1;
-        let mut transport_data = world.get::<&mut Transport>(transport).unwrap();
-        let result = transport_data.start_traverse(world, neighbor_connection);
+        let mut transport_data = game.get::<&mut Transport>(transport).unwrap();
+        let result = transport_data.start_traverse(game.world(), neighbor_connection);
 
         assert!(matches!(result, Err(TraverseError::IncompatibleTerrain)));
-        assert_eq!(transport_data.position, Position::AtNode(paris));
+        assert_eq!(transport_data.position, Position::AtNode(paris_ent));
     }
 }

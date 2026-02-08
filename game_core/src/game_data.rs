@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::{
     item::{ItemType, recipe::Recipe},
-    map::{planet::GasType, site::TerrainType, transport::TransportType},
+    map::{planet::GasType, terrain::TerrainType, transport::TransportType},
 };
 
 /// read from json files

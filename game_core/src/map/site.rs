@@ -1,16 +1,14 @@
 // game_core/src/map/site.rs
-use hecs::{Bundle, Entity};
-use serde::{Deserialize, Serialize};
+use hecs::{Bundle, Entity, World};
 
-use crate::map::node::Node;
+use crate::map::{node::Node, region::Region, terrain::TerrainType};
 
 #[derive(Debug)]
 pub struct Site {
     pub name: String,
-    pub base_production: u32,
     pub terrain_type: TerrainType,
+
     pub region: Entity,
-    pub planet: Entity,
 }
 #[derive(Bundle)]
 pub struct SiteBundle {
@@ -18,14 +16,24 @@ pub struct SiteBundle {
     pub node: Node,
 }
 
-#[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
-pub struct TerrainType {
-    pub name: String,
-}
-impl TerrainType {
-    pub fn new(name: &str) -> Self {
-        Self {
+pub fn spawn_default_site(
+    world: &mut World,
+    region: Entity,
+    name: &str,
+    terrain_type: TerrainType,
+) -> Entity {
+    let site_ent = world.spawn(SiteBundle {
+        site: Site {
             name: name.to_string(),
-        }
+            terrain_type,
+            region,
+        },
+        node: Node::default(),
+    });
+
+    if let Ok(mut region) = world.get::<&mut Region>(region) {
+        region.sites.push(site_ent.clone());
     }
+
+    site_ent
 }

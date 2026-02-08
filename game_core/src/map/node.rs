@@ -1,7 +1,7 @@
 // game_core/src/map/map.rs
 use hecs::{Entity, World};
 
-use crate::map::site::TerrainType;
+use crate::map::terrain::TerrainType;
 
 /// marker for Site, Planet etc.
 #[derive(Debug, Default)]
@@ -56,9 +56,9 @@ mod tests {
         load_game_data,
         map::{
             node::{Node, connect_nodes},
-            planet::{Atmosphere, GasType, Planet, PlanetBundle},
-            region::{Region, RegionBundle},
-            site::{Site, SiteBundle, TerrainType},
+            planet::{Atmosphere, GasType, spawn_default_planet},
+            region::spawn_default_region,
+            site::spawn_default_site,
         },
     };
 
@@ -67,75 +67,60 @@ mod tests {
         let game_data = load_game_data();
         let mut game = Game::new(game_data);
 
-        let earth = game.world_mut().spawn((
-            PlanetBundle {
-                planet: Planet {
-                    name: "Earth".to_string(),
-                    total_score: 0,
-                },
-                node: Node::default(),
-            },
-            Atmosphere {
-                pressure: 0.,
-                composition: vec![(GasType::new("oxygen"), 100.0)],
-            },
-        ));
-        let north = game.world_mut().spawn((RegionBundle {
-            region: Region {
-                name: "North".to_string(),
-                planet: earth,
-            },
-            node: Node::default(),
-        },));
+        let game_data = game.game_data();
+        let world = game.world_mut();
 
-        let paris = game.world_mut().spawn(SiteBundle {
-            site: Site {
-                name: "Paris".to_string(),
-                base_production: 10,
-                terrain_type: TerrainType::new("land"),
-                region: north,
-                planet: earth,
-            },
-            node: Node::default(),
-        });
+        let earth_ent = spawn_default_planet(world, "Earth");
+        world
+            .insert(
+                earth_ent,
+                (Atmosphere {
+                    pressure: 0.,
+                    composition: vec![(GasType::new("oxygen"), 100.0)],
+                },),
+            )
+            .unwrap();
+        let north_ent = spawn_default_region(world, earth_ent, "North");
 
-        let london = game.world_mut().spawn(SiteBundle {
-            site: Site {
-                name: "London".to_string(),
-                base_production: 10,
-                terrain_type: TerrainType::new("land"),
-                region: north,
-                planet: earth,
-            },
-            node: Node::default(),
-        });
+        let paris_ent = spawn_default_site(
+            world,
+            north_ent,
+            "Paris",
+            game_data.get_terrain_type("land"),
+        );
+        let london_ent = spawn_default_site(
+            world,
+            north_ent,
+            "Paris",
+            game_data.get_terrain_type("land"),
+        );
 
         {
-            let paris_node = game.world_mut().get::<&Node>(paris).unwrap();
+            let paris_node = game.world_mut().get::<&Node>(paris_ent).unwrap();
             assert_eq!(paris_node.neighbor_connections.len(), 0);
         }
         {
-            let london_node = game.world_mut().get::<&Node>(london).unwrap();
+            let london_node = game.world_mut().get::<&Node>(london_ent).unwrap();
             assert_eq!(london_node.neighbor_connections.len(), 0);
         }
 
         connect_nodes(
             game.world_mut(),
-            paris,
-            london,
+            paris_ent,
+            london_ent,
             100,
-            TerrainType::new("water"),
+            game_data.get_terrain_type("water"),
         );
 
         {
-            let paris_node = game.world_mut().get::<&Node>(paris).unwrap();
+            let paris_node = game.world_mut().get::<&Node>(paris_ent).unwrap();
             assert_eq!(paris_node.neighbor_connections.len(), 1);
-            assert_eq!(paris_node.neighbor_connections[0].0, london);
+            assert_eq!(paris_node.neighbor_connections[0].0, london_ent);
         }
         {
-            let london_node = game.world_mut().get::<&Node>(london).unwrap();
+            let london_node = game.world_mut().get::<&Node>(london_ent).unwrap();
             assert_eq!(london_node.neighbor_connections.len(), 1);
-            assert_eq!(london_node.neighbor_connections[0].0, paris);
+            assert_eq!(london_node.neighbor_connections[0].0, paris_ent);
         }
     }
 }

@@ -1,5 +1,5 @@
 // game_core/game.rs
-use hecs::{ComponentError, ComponentRef, Entity, World};
+use hecs::{ComponentError, ComponentRef, DynamicBundle, Entity, World};
 use serde::Serialize;
 
 use crate::{game_data::GameData, scheduler};
@@ -36,6 +36,10 @@ impl Game {
         self.world.spawn((0i32, 0u32));
     }
 
+    pub fn spawn(&mut self, components: impl DynamicBundle) -> Entity {
+        self.world.spawn(components)
+    }
+
     pub fn world(&self) -> &World {
         &self.world
     }
@@ -43,8 +47,8 @@ impl Game {
         &mut self.world
     }
 
-    pub fn game_data(&self) -> &GameData {
-        &self.game_data
+    pub fn game_data(&self) -> GameData {
+        self.game_data.clone()
     }
 
     pub fn get<'a, T: ComponentRef<'a>>(
